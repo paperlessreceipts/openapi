@@ -1,0 +1,991 @@
+openapi: 3.1.0
+info:
+  title: Yocuda eReceipts API v2
+  version: 2.0.0-beta.1
+externalDocs:
+  description: Yocuda developer documentation
+  url: https://developer.ereceipts.co.uk
+servers:
+- url: https://api.ereceipts.co.uk/
+- url: https://api.staging.ereceipts.co.uk/
+paths:
+  /receipts:
+    get:
+      summary: Get a list of receipts
+      externalDocs:
+        url: https://developer.ereceipts.co.uk/api/resources/get_receipts_v2.html#get-receipts-v2
+      parameters:
+      - $ref: '#/components/parameters/apiVersion'
+      - name: consumer
+        in: query
+        schema:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          maxItems: 5
+        required: false
+        description: One or more consumer identifiers
+      - name: count
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 20
+          default: 20
+        required: false
+        description: Number of returned receipts
+      - name: id
+        in: query
+        schema:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          maxItems: 5
+        required: false
+        description: One or more receipt identifiers
+        explode: false
+      - name: newer
+        in: query
+        schema:
+          type: string
+        required: false
+        description: Return receipts newer than this
+      - name: next
+        in: query
+        schema:
+          type: string
+        required: false
+        description: Return the previous view of receipts newer than this
+      - name: prev
+        in: query
+        schema:
+          type: string
+        required: false
+        description: Return the next view of receipts older than this
+      - name: store_id
+        in: query
+        schema:
+          type: array
+          items:
+            type: integer
+          minItems: 1
+          maxItems: 5
+        required: false
+        description: One or more store identifiers
+        explode: false
+      - name: store_reference
+        in: query
+        schema:
+          type: array
+          items:
+            type: integer
+          minItems: 1
+          maxItems: 5
+        required: false
+        description: One or more store references
+        explode: false
+      - name: transaction_id
+        in: query
+        schema:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          maxItems: 5
+        required: false
+        description: One or more transaction identifiers
+        explode: false
+      responses:
+        '200':
+          description: An object containing an array of receipt objects
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _links:
+                    type: object
+                    properties:
+                      latest:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            description: URI
+                        description: Link to the most recent receipts
+                      newer:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            description: URI
+                        description: Link to newer receipts
+                      next:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            description: URI
+                        description: Link to the next page of receipts
+                      prev:
+                        type: object
+                        properties:
+                          href:
+                            type: string
+                            description: URI
+                        description: Link to the previous page of receipts
+                    description: Receipt links
+                  receipts:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Receipt'
+        default:
+          $ref: '#/components/responses/Error'
+    post:
+      summary: Post a single receipt
+      externalDocs:
+        url: https://developer.ereceipts.co.uk/api/resources/post_receipts.html#post-receipts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - localtime
+              - store_reference
+              - transaction_id
+              properties:
+                attachments:
+                  type: object
+                  additionalProperties:
+                    type: object
+                    properties:
+                      content_disposition:
+                        type: string
+                        description: Value of the new attachment's Content-Disposition
+                          header
+                      content_type:
+                        type: string
+                        description: Value of the new attachment's Content-Type header
+                      data:
+                        type: string
+                        description: The base64-encoded data of a new attachment
+                      id:
+                        type: string
+                        description: The identifier of an existing attachment
+                discounts:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ReceiptDiscount'
+                duplicate:
+                  type: boolean
+                  description: Signifies that this receipt is a duplicate
+                external_id:
+                  type: string
+                  format: uuid
+                  description: A UUIDv4, as defined in RFC 4122
+                gross:
+                  type: number
+                  format: float
+                  description: The gross price
+                identifier:
+                  type: string
+                  description: Retailer-specific consumer identifier (loyalty card
+                    number, e-mail address or other)
+                incomplete:
+                  type: boolean
+                  description: Signifies missing fields on the receipt
+                items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ReceiptItem'
+                l10n:
+                  $ref: '#/components/schemas/L10N'
+                localtime:
+                  type: string
+                  format: date-time
+                  description: The date and time on the receipt, optionally including
+                    the timezone offset in which the receipt was generated (the receipt,
+                    store, or retailer timezone is used if a timezone offset is not
+                    included) formatted as an ISO 8601 date and time
+                net:
+                  type: number
+                  format: float
+                  description: The net price
+                payments:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ReceiptPayment'
+                properties:
+                  $ref: '#/components/schemas/ReceiptProperties'
+                store:
+                  $ref: '#/components/schemas/ReceiptStore'
+                  description: Should only be set when store creation/update from
+                    receipts has been enabled, otherwise the field will be ignored
+                store_reference:
+                  oneOf:
+                  - type: integer
+                  - type: string
+                  description: The store identifier
+                subtotal:
+                  type: number
+                  format: float
+                  description: The subtotal on the receipt
+                taxes:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ReceiptTax'
+                total:
+                  type: number
+                  format: float
+                  description: The total price on the receipt
+                transaction_id:
+                  type: string
+                  description: Retailer-specific, unique transaction identifier
+      responses:
+        '201':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _links:
+                    $ref: '#/components/schemas/ReceiptLinks'
+                  id:
+                    type: string
+                    description: The unique receipt identifier
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '409':
+          description: Receipt with the given transaction identifier exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntityError'
+        default:
+          $ref: '#/components/responses/Error'
+  /receipts/{id}:
+    get:
+      summary: Get a single receipt
+      externalDocs:
+        url: https://developer.ereceipts.co.uk/api/resources/get_receipts_id.html#get-receipts-id
+      parameters:
+      - $ref: '#/components/parameters/apiVersion'
+      - name: id
+        in: path
+        schema:
+          type: string
+        required: true
+        description: The unique receipt identifier
+      - name: consumer
+        in: query
+        schema:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          maxItems: 5
+        required: false
+        description: One or more consumer identifiers
+      responses:
+        '200':
+          description: A receipt object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '404':
+          description: Receipt not found
+          $ref: '#/components/responses/NotFoundError'
+        default:
+          $ref: '#/components/responses/Error'
+    patch:
+      summary: Update a single receipt using a JSON Patch document
+      externalDocs:
+        url: https://developer.ereceipts.co.uk/api/resources/patch_receipts_id.html#patch-receipts-id
+      parameters:
+      - $ref: '#/components/parameters/apiVersion'
+      - name: id
+        in: path
+        schema:
+          type: string
+        required: true
+        description: The unique receipt identifier
+      - name: consumer
+        in: query
+        schema:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          maxItems: 5
+        required: false
+        description: One or more consumer identifiers
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              type: object
+              required:
+              - patch
+              properties:
+                patch:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                    - op
+                    - path
+                    - value
+                    properties:
+                      op:
+                        type: string
+                      path:
+                        type: string
+                      value: {}
+      responses:
+        '200':
+          description: The updated receipt object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          description: Receipt not found
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          description: Receipt could not be updated
+          $ref: '#/components/responses/ConflictError'
+        default:
+          $ref: '#/components/responses/Error'
+  /pos/receipts:
+    post:
+      summary: Post a raw receipt in any format
+      externalDocs:
+        url: https://developer.ereceipts.co.uk/api/resources/post_pos_receipts.html#post-pos-receipts
+      parameters:
+      - $ref: '#/components/parameters/apiVersion'
+      - name: ereceipts-attachment-id
+        in: header
+        schema:
+          type: string
+        required: false
+        description: An attachment link
+      - name: ereceipts-duplicate
+        in: header
+        schema:
+          type: boolean
+        required: false
+        description: Signifies that this receipt is a duplicate
+      - name: ereceipts-external-id
+        in: header
+        schema:
+          type: string
+        required: false
+        description: A UUIDv4, as defined in RFC 4122
+      - name: ereceipts-source-id
+        in: header
+        schema:
+          type: string
+        required: false
+        description: The identifier of the pos entry source
+      - name: ereceipts-source-read
+        in: header
+        schema:
+          type: string
+          format: date-time
+        required: false
+        description: Creation timestamp, formatted as an ISO 8601 date
+      - name: ereceipts-till-id
+        in: header
+        schema:
+          type: string
+        required: false
+        description: The descriptive identifier of the till
+      - name: ereceipts-till-uuid
+        in: header
+        schema:
+          type: string
+          format: uuid
+        required: false
+        description: A till UUID
+      - name: duplicate
+        in: query
+        schema:
+          type: boolean
+        required: false
+        description: Signifies that this receipt is a duplicate
+      - name: external_id
+        in: query
+        schema:
+          type: string
+        required: false
+        description: A UUIDv4, as defined in RFC 4122
+      - name: source_id
+        in: query
+        schema:
+          type: string
+        required: false
+        description: The identifier of the pos entry source
+      - name: source_read
+        in: query
+        schema:
+          type: string
+          format: date-time
+        required: false
+        description: Creation timestamp, formatted as an ISO 8601 date
+      - name: till_id
+        in: query
+        schema:
+          type: string
+        required: false
+        description: The descriptive identifier of the till
+      - name: till_uuid
+        in: query
+        schema:
+          type: string
+          format: uuid
+        required: false
+        description: A till UUID
+      requestBody:
+        content:
+          '*/*': {}
+      responses:
+        '202':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: The identifier of the receipt data queued for processing
+            '*/*':
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        default:
+          $ref: '#/components/responses/Error'
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        status:
+          type: string
+        description:
+          type: string
+    L10N:
+      type: object
+      properties:
+        currency:
+          type: string
+          description: A ISO 4217 three letter currency code
+        locale:
+          type: string
+          description: An RFC 4646 language tag
+        timezone:
+          type: string
+          description: IANA time zone name
+        translation_locale:
+          type: string
+          description: An RFC 4646 language tag
+    Receipt:
+      type: object
+      properties:
+        _links:
+          $ref: '#/components/schemas/ReceiptLinks'
+        attachments:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The identifier of an existing attachment
+        delivery:
+          $ref: '#/components/schemas/ReceiptDelivery'
+        discounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReceiptDiscount'
+        duplicate:
+          type: boolean
+          description: Signifies that this receipt is a duplicate
+        external_id:
+          type: string
+          format: uuid
+          description: A UUIDv4, as defined in RFC 4122
+        feedback:
+          $ref: '#/components/schemas/ReceiptFeedback'
+        gross:
+          type: number
+          format: float
+          description: The gross price
+        id:
+          type: string
+          description: The unique receipt identifier
+        identifier:
+          type: string
+          description: Retailer-specific consumer identifier (loyalty card number,
+            e-mail address or other)
+        incomplete:
+          type: boolean
+          description: Signifies missing fields on the receipt
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReceiptItem'
+        l10n:
+          $ref: '#/components/schemas/L10N'
+        localtime:
+          type: string
+          format: date-time
+          description: The date and time on the receipt, optionally including the
+            timezone offset in which the receipt was generated (the receipt, store,
+            or retailer timezone is used if a timezone offset is not included) formatted
+            as an ISO 8601 date and time
+        net:
+          type: number
+          format: float
+          description: The net price
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReceiptPayment'
+        pos_data_ids:
+          type: array
+          items:
+            type: string
+            description: A pos_data identifier
+        processed:
+          type: string
+          format: date-time
+          description: End of processing timestamp, in UTC, formatted as an ISO 8601
+            date
+        properties:
+          $ref: '#/components/schemas/ReceiptProperties'
+        retailer:
+          $ref: '#/components/schemas/ReceiptRetailer'
+        store:
+          $ref: '#/components/schemas/ReceiptStore'
+        store_reference:
+          type: integer
+          description: The store identifier
+        subtotal:
+          type: number
+          format: float
+          description: The subtotal on the receipt
+        taxes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReceiptTax'
+        till_uuid:
+          type: string
+          format: uuid
+          description: The UUID of the source till
+        timestamp:
+          type: string
+          format: date-time
+          description: The date and time on the receipt, converted to UTC, formatted
+            as an ISO 8601 date
+        total:
+          type: number
+          format: float
+          description: The total price on the receipt
+        transaction_id:
+          type: string
+          description: Retailer-specific, unique transaction identifier
+    ReceiptDelivery:
+      type: object
+      description: Delivery channel info
+      properties:
+        counts:
+          type: object
+          additionalProperties:
+            type: integer
+          description: An object mapping event types to counters indicating how many
+            times an event of a given type occurred
+        events:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  description: The reason of a bounce or drop
+                timestamp:
+                  type: string
+                  format: date-time
+                  description: The date and time of this event, expressed in UTC,
+                    formatted as an ISO 8601 date
+    ReceiptDiscount:
+      type: object
+      required:
+      - amount
+      - name
+      properties:
+        amount:
+          type: number
+          format: float
+          description: The amount of discount for this discount line
+        name:
+          type: string
+          description: The descriptive name of this discount
+        percentage:
+          type: number
+          format: float
+          description: The discount percentage
+        properties:
+          type: object
+          properties: {}
+          additionalProperties: true
+        quantity:
+          type: integer
+          description: The quantity of this discount
+    ReceiptFeedback:
+      type: object
+      description: Customer feedback info
+      properties:
+        ratings:
+          type: array
+          items:
+            type: object
+            properties:
+              rating:
+                type: integer
+              rating_total:
+                type: integer
+              rating_type:
+                type: string
+              timestamp:
+                type: string
+                format: date-time
+        surveys:
+          type: array
+          items:
+            type: object
+            properties:
+              date_created:
+                type: string
+                format: date-time
+              date_modified:
+                type: string
+                format: date-time
+              response_id:
+                type: string
+              survey_id:
+                type: string
+              survey_title:
+                type: string
+    ReceiptItem:
+      type: object
+      required:
+      - name
+      - quantity
+      - total
+      properties:
+        discounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReceiptDiscount'
+        gross:
+          type: number
+          format: float
+          description: The gross price for this item
+        gross_unit_price:
+          type: number
+          format: float
+          description: The gross unit price for this item
+        name:
+          type: string
+          description: The descriptive name for this item
+        net:
+          type: number
+          format: float
+          description: The net price for this item
+        net_unit_price:
+          type: number
+          format: float
+          description: The net unit price for this item
+        properties:
+          type: object
+          properties: {}
+          additionalProperties: true
+        quantity:
+          type: number
+          format: float
+          description: The quantity of this item purchased
+        return:
+          $ref: '#/components/schemas/ReceiptReturn'
+        taxes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReceiptTax'
+        total:
+          type: number
+          format: float
+          description: The total price for this item
+        unit:
+          type: string
+          description: The quantity unit
+        unit_price:
+          type: number
+          format: float
+          description: The unit price for this item
+    ReceiptLinks:
+      type: object
+      properties:
+        attachments:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              href:
+                type: string
+                description: URI
+          description: Links to receipt attachments
+        webview:
+          type: object
+          properties:
+            href:
+              type: string
+              description: URI
+            pdf:
+              type: string
+              description: URI of a PDF rendering of the HTML receipt
+            qrcode:
+              type: string
+              description: URI of a QR code containing the link
+          description: Link to the HTML receipt
+    ReceiptPayment:
+      type: object
+      required:
+      - amount
+      - method
+      properties:
+        amount:
+          type: number
+          format: float
+          description: The amount paid
+        currency:
+          type: string
+          description: The payment currency, an ISO 4217 three letter code
+        details:
+          type: object
+          properties: {}
+          additionalProperties: true
+          description: The method-dependent details of the payment
+        method:
+          type: string
+          description: The payment method
+    ReceiptProperties:
+      type: object
+      properties:
+        email_settings:
+          type: object
+          properties:
+            block:
+              type: string
+            send:
+              type: boolean
+            template:
+              type: string
+      additionalProperties: true
+    ReceiptRetailer:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The descriptive name for this retailer
+    ReceiptReturn:
+      type: object
+      required:
+      - localtime
+      properties:
+        localtime:
+          type: string
+          format: date-time
+          description: The date and time of the return, (including an optional timezone
+            offset) in which the return was generated, formatted as an ISO 8601 date
+            and time
+        properties:
+          type: object
+          properties: {}
+          additionalProperties: true
+        reason:
+          type: string
+          description: The return reason
+    ReceiptStore:
+      type: object
+      required:
+      - country
+      - name
+      properties:
+        address:
+          type: array
+          items:
+            type: string
+        city:
+          type: string
+          description: Name of the city in which this store is located
+        country:
+          type: string
+          description: Code of the country in which this store is located
+        currency:
+          type: string
+          description: ISO 4217 currency code
+        locale:
+          type: string
+          description: The locale for this store
+        name:
+          type: string
+          description: The descriptive name for this store
+        phone:
+          type: string
+          description: A telephone number for contacting this store
+        postcode:
+          type: string
+          description: The postcode matching this store's address
+        properties:
+          type: object
+          additionalProperties: true
+          properties: {}
+          description: The properties for this store
+        timezone:
+          type: string
+          description: IANA time zone name
+    ReceiptTax:
+      type: object
+      required:
+      - amount
+      - name
+      properties:
+        amount:
+          type: number
+          format: float
+          description: The amount of tax at this rate
+        code:
+          type: string
+          description: The tax code
+        name:
+          type: string
+          description: The tax type name
+        properties:
+          type: object
+          properties: {}
+          additionalProperties: true
+        rate:
+          type: number
+          format: float
+          description: The tax rate, in percent
+    SchemaError:
+      type: object
+      properties:
+        status:
+          type: string
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              location:
+                type: string
+              name:
+                type: string
+              description:
+                type: string
+  parameters:
+    apiVersion:
+      name: ereceipts-api-version
+      in: header
+      schema:
+        type: integer
+        enum:
+        - 2
+      required: true
+      description: Request version 2 of this resource
+  responses:
+    BadRequestError:
+      content:
+        application/json:
+          schema:
+            oneOf:
+            - $ref: '#/components/schemas/Error'
+            - $ref: '#/components/schemas/SchemaError'
+          examples:
+            generic:
+              summary: Bad request status
+              value:
+                status: bad request
+                description: '...'
+            schema:
+              summary: Schema error status
+              value:
+                status: error
+                errors:
+                - location: body
+                  name: '...'
+                  description: '...'
+      description: Request was invalid
+    ConflictError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            generic:
+              summary: Conflict status
+              value:
+                status: conflict
+                description: '...'
+      description: Requested resource could not be updated
+    Error:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+      description: An unexpected error
+    NotFoundError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            generic:
+              summary: Not found status
+              value:
+                status: not found
+                description: '...'
+      description: Requested resource could not be found
+    UnprocessableEntityError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            generic:
+              summary: Unprocessable entity status
+              value:
+                status: unprocessable entity
+                description: '...'
+      description: Submitted content could not be processed
+  securitySchemes:
+    bearerToken:
+      type: http
+      scheme: Bearer
+      bearerFormat: JWT
+      description: A bearer token
+security:
+- bearerToken: []
