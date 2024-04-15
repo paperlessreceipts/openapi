@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Yocuda eReceipts API v2
-  version: 2.0.0-beta.1
+  version: 2.0.0-beta.2
 externalDocs:
   description: Yocuda developer documentation
   url: https://developer.ereceipts.co.uk
@@ -44,8 +44,8 @@ paths:
           minItems: 1
           maxItems: 5
         required: false
-        description: One or more receipt identifiers
         explode: false
+        description: One or more receipt identifiers
       - name: newer
         in: query
         schema:
@@ -73,8 +73,8 @@ paths:
           minItems: 1
           maxItems: 5
         required: false
-        description: One or more store identifiers
         explode: false
+        description: One or more store identifiers
       - name: store_reference
         in: query
         schema:
@@ -84,8 +84,8 @@ paths:
           minItems: 1
           maxItems: 5
         required: false
-        description: One or more store references
         explode: false
+        description: One or more store references
       - name: transaction_id
         in: query
         schema:
@@ -95,8 +95,8 @@ paths:
           minItems: 1
           maxItems: 5
         required: false
-        description: One or more transaction identifiers
         explode: false
+        description: One or more transaction identifiers
       responses:
         '200':
           description: An object containing an array of receipt objects
@@ -142,7 +142,7 @@ paths:
                     items:
                       $ref: '#/components/schemas/Receipt'
         default:
-          $ref: '#/components/responses/Error'
+          $ref: '#/components/responses/GenericError'
     post:
       summary: Post a single receipt
       externalDocs:
@@ -268,7 +268,7 @@ paths:
         '422':
           $ref: '#/components/responses/UnprocessableEntityError'
         default:
-          $ref: '#/components/responses/Error'
+          $ref: '#/components/responses/GenericError'
   /receipts/{id}:
     get:
       summary: Get a single receipt
@@ -303,7 +303,7 @@ paths:
           description: Receipt not found
           $ref: '#/components/responses/NotFoundError'
         default:
-          $ref: '#/components/responses/Error'
+          $ref: '#/components/responses/GenericError'
     patch:
       summary: Update a single receipt using a JSON Patch document
       externalDocs:
@@ -364,7 +364,7 @@ paths:
           description: Receipt could not be updated
           $ref: '#/components/responses/ConflictError'
         default:
-          $ref: '#/components/responses/Error'
+          $ref: '#/components/responses/GenericError'
   /pos/receipts:
     post:
       summary: Post a raw receipt in any format
@@ -474,7 +474,7 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequestError'
         default:
-          $ref: '#/components/responses/Error'
+          $ref: '#/components/responses/GenericError'
 components:
   schemas:
     Error:
@@ -484,6 +484,10 @@ components:
           type: string
         description:
           type: string
+    ErrorOrSchemaError:
+      oneOf:
+      - $ref: '#/components/schemas/Error'
+      - $ref: '#/components/schemas/SchemaError'
     L10N:
       type: object
       properties:
@@ -649,7 +653,6 @@ components:
           description: The discount percentage
         properties:
           type: object
-          properties: {}
           additionalProperties: true
         quantity:
           type: integer
@@ -721,7 +724,6 @@ components:
           description: The net unit price for this item
         properties:
           type: object
-          properties: {}
           additionalProperties: true
         quantity:
           type: number
@@ -784,7 +786,6 @@ components:
           description: The payment currency, an ISO 4217 three letter code
         details:
           type: object
-          properties: {}
           additionalProperties: true
           description: The method-dependent details of the payment
         method:
@@ -822,7 +823,6 @@ components:
             and time
         properties:
           type: object
-          properties: {}
           additionalProperties: true
         reason:
           type: string
@@ -861,7 +861,6 @@ components:
         properties:
           type: object
           additionalProperties: true
-          properties: {}
           description: The properties for this store
         timezone:
           type: string
@@ -884,7 +883,6 @@ components:
           description: The tax type name
         properties:
           type: object
-          properties: {}
           additionalProperties: true
         rate:
           type: number
@@ -921,9 +919,7 @@ components:
       content:
         application/json:
           schema:
-            oneOf:
-            - $ref: '#/components/schemas/Error'
-            - $ref: '#/components/schemas/SchemaError'
+            $ref: '#/components/schemas/ErrorOrSchemaError'
           examples:
             generic:
               summary: Bad request status
@@ -951,7 +947,7 @@ components:
                 status: conflict
                 description: '...'
       description: Requested resource could not be updated
-    Error:
+    GenericError:
       content:
         application/json:
           schema:
