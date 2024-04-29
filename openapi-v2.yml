@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Yocuda eReceipts API v2
-  version: 2.0.0-beta.2
+  version: 2.0.0-beta.3
 externalDocs:
   description: Yocuda developer documentation
   url: https://developer.ereceipts.co.uk
@@ -42,7 +42,7 @@ paths:
           items:
             type: string
           minItems: 1
-          maxItems: 5
+          maxItems: 20
         required: false
         explode: false
         description: One or more receipt identifiers
@@ -93,7 +93,7 @@ paths:
           items:
             type: string
           minItems: 1
-          maxItems: 5
+          maxItems: 20
         required: false
         explode: false
         description: One or more transaction identifiers
@@ -345,6 +345,10 @@ paths:
                     properties:
                       op:
                         type: string
+                        enum:
+                        - add
+                        - replace
+                        - test
                       path:
                         type: string
                       value: {}
@@ -785,12 +789,119 @@ components:
           type: string
           description: The payment currency, an ISO 4217 three letter code
         details:
-          type: object
-          additionalProperties: true
+          oneOf:
+          - $ref: '#/components/schemas/ReceiptCardPaymentDetails'
+          - $ref: '#/components/schemas/ReceiptCashPaymentDetails'
+          - $ref: '#/components/schemas/ReceiptGiftCardPaymentDetails'
+          - $ref: '#/components/schemas/ReceiptOtherPaymentDetails'
+          - $ref: '#/components/schemas/ReceiptVoucherPaymentDetails'
           description: The method-dependent details of the payment
         method:
           type: string
+          enum:
+          - card
+          - cash
+          - giftcard
+          - other
+          - voucher
           description: The payment method
+    ReceiptCardPaymentDetails:
+      type: object
+      properties:
+        end:
+          type: string
+          pattern: ^[0-9]{4}$
+          description: The end date
+        issue:
+          type: string
+          pattern: ^[0-9]+$
+          description: The issue number
+        number:
+          type: string
+          pattern: ^[0-9]{4}$
+          description: The last four digits of the card number
+        other:
+          type: object
+          additionalProperties: true
+          description: Retailer-specific payment details
+        po_number:
+          type: string
+          description: Purchase order number
+        start:
+          type: string
+          pattern: ^[0-9]{4}$
+          description: The start date
+        type:
+          type: string
+          description: The card type
+    ReceiptCashPaymentDetails:
+      type: object
+      required:
+      - change
+      properties:
+        change:
+          type: number
+          format: float
+          description: Change due
+        other:
+          type: object
+          additionalProperties: true
+          description: Retailer-specific payment details
+        po_number:
+          type: string
+          description: Purchase order number
+        rounding:
+          type: number
+          format: float
+          description: Rounding amount
+    ReceiptGiftCardPaymentDetails:
+      type: object
+      properties:
+        balance:
+          type: number
+          format: float
+          description: The current balance on card
+        expiry:
+          type: string
+          format: date-time
+          description: The card expiry date
+        number:
+          type: string
+          description: The card number
+        other:
+          type: object
+          additionalProperties: true
+          description: Retailer-specific payment details
+        po_number:
+          type: string
+          description: Purchase order number
+        type:
+          type: string
+          description: The card type
+    ReceiptOtherPaymentDetails:
+      type: object
+      properties:
+        other:
+          type: object
+          additionalProperties: true
+          description: Retailer-specific payment details
+        po_number:
+          type: string
+          description: Purchase order number
+    ReceiptVoucherPaymentDetails:
+      type: object
+      properties:
+        change:
+          type: number
+          format: float
+          description: Change due as a voucher
+        other:
+          type: object
+          additionalProperties: true
+          description: Retailer-specific payment details
+        po_number:
+          type: string
+          description: Purchase order number
     ReceiptProperties:
       type: object
       properties:
@@ -839,6 +950,8 @@ components:
             type: string
         city:
           type: string
+          minLength: 1
+          maxLength: 60
           description: Name of the city in which this store is located
         country:
           type: string
@@ -848,15 +961,23 @@ components:
           description: ISO 4217 currency code
         locale:
           type: string
+          minLength: 1
+          maxLength: 42
           description: The locale for this store
         name:
           type: string
+          minLength: 1
+          maxLength: 100
           description: The descriptive name for this store
         phone:
           type: string
+          minLength: 1
+          maxLength: 20
           description: A telephone number for contacting this store
         postcode:
           type: string
+          minLength: 1
+          maxLength: 10
           description: The postcode matching this store's address
         properties:
           type: object
@@ -864,6 +985,8 @@ components:
           description: The properties for this store
         timezone:
           type: string
+          minLength: 1
+          maxLength: 40
           description: IANA time zone name
     ReceiptTax:
       type: object
