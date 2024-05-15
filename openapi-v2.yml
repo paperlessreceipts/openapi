@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Yocuda eReceipts API v2
-  version: 2.0.0-beta.3
+  version: 2.0.0-beta.4
 externalDocs:
   description: Yocuda developer documentation
   url: https://developer.ereceipts.co.uk
@@ -316,42 +316,11 @@ paths:
           type: string
         required: true
         description: The unique receipt identifier
-      - name: consumer
-        in: query
-        schema:
-          type: array
-          items:
-            type: string
-          minItems: 1
-          maxItems: 5
-        required: false
-        description: One or more consumer identifiers
       requestBody:
         content:
           application/json-patch+json:
             schema:
-              type: object
-              required:
-              - patch
-              properties:
-                patch:
-                  type: array
-                  items:
-                    type: object
-                    required:
-                    - op
-                    - path
-                    - value
-                    properties:
-                      op:
-                        type: string
-                        enum:
-                        - add
-                        - replace
-                        - test
-                      path:
-                        type: string
-                      value: {}
+              $ref: '#/components/schemas/Patch'
       responses:
         '200':
           description: The updated receipt object
@@ -507,6 +476,24 @@ components:
         translation_locale:
           type: string
           description: An RFC 4646 language tag
+    Patch:
+      type: array
+      items:
+        type: object
+        required:
+        - op
+        - path
+        - value
+        properties:
+          op:
+            type: string
+            enum:
+            - add
+            - replace
+            - test
+          path:
+            type: string
+          value: {}
     Receipt:
       type: object
       properties:
