@@ -269,6 +269,62 @@ paths:
           $ref: '#/components/responses/UnprocessableEntityError'
         default:
           $ref: '#/components/responses/GenericError'
+  /receipts/_assign:
+    post:
+      summary: Assign a single receipt to an identifier
+      externalDocs:
+        url: https://developer.ereceipts.co.uk/api/resources/post_assign_receipt.html#post-assign-receipt
+      parameters:
+      - $ref: '#/components/parameters/apiVersion'
+      - name: consumer
+        in: query
+        schema:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          maxItems: 5
+        required: false
+        description: One or more consumer identifiers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - identifier
+              properties:
+                id:
+                  type: string
+                  description: The unique receipt identifier
+                identifier:
+                  type: string
+                  description: Retailer-specific consumer identifier (loyalty card
+                    number, e-mail address or other)
+                transaction_id:
+                  type: string
+                  description: Retailer-specific transaction identifier
+      responses:
+        '200':
+          description: The updated receipt object when the key is configured to return
+            receipt responses.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '204':
+          description: No content when the key is configured to not return receipt
+            responses.
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          description: Receipt not found
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          description: Receipt could not be updated
+          $ref: '#/components/responses/ConflictError'
+        default:
+          $ref: '#/components/responses/GenericError'
   /receipts/{id}:
     get:
       summary: Get a single receipt
