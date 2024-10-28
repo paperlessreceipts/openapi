@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Yocuda eReceipts API v2
-  version: 2.0.0-beta.5
+  version: 2.0.0-beta.6
 externalDocs:
   description: Yocuda developer documentation
   url: https://developer.ereceipts.co.uk
@@ -141,6 +141,8 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Receipt'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
         default:
           $ref: '#/components/responses/GenericError'
     post:
@@ -259,6 +261,8 @@ paths:
                     description: The unique receipt identifier
         '400':
           $ref: '#/components/responses/BadRequestError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
         '409':
           description: Receipt with the given transaction identifier exists
           content:
@@ -317,6 +321,8 @@ paths:
             responses.
         '400':
           $ref: '#/components/responses/BadRequestError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
         '404':
           description: Receipt not found
           $ref: '#/components/responses/NotFoundError'
@@ -355,6 +361,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Receipt'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
         '404':
           description: Receipt not found
           $ref: '#/components/responses/NotFoundError'
@@ -386,6 +394,8 @@ paths:
                 $ref: '#/components/schemas/Receipt'
         '400':
           $ref: '#/components/responses/BadRequestError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
         '404':
           description: Receipt not found
           $ref: '#/components/responses/NotFoundError'
@@ -502,6 +512,8 @@ paths:
                 type: string
         '400':
           $ref: '#/components/responses/BadRequestError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
         default:
           $ref: '#/components/responses/GenericError'
 components:
@@ -513,6 +525,11 @@ components:
           type: string
         description:
           type: string
+        code:
+          type: string
+          enum:
+          - signature_expired
+          - signature_too_far_in_the_future
     ErrorOrSchemaError:
       oneOf:
       - $ref: '#/components/schemas/Error'
@@ -1113,6 +1130,30 @@ components:
                 status: conflict
                 description: '...'
       description: Requested resource could not be updated
+    ForbiddenError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            generic:
+              summary: Forbidden status
+              value:
+                status: forbidden
+                description: '...'
+            signature_expired:
+              summary: Signature expired
+              value:
+                status: forbidden
+                description: '...'
+                code: signature_expired
+            signature_too_far_in_the_future:
+              summary: Signature over the upper limit of expiry
+              value:
+                status: forbidden
+                description: '...'
+                code: signature_too_far_in_the_future
+      description: Requested resource could not be accessed
     GenericError:
       content:
         application/json:
