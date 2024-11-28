@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Yocuda eReceipts API v2
-  version: 2.0.0-beta.6
+  version: 2.0.0-beta.7
 externalDocs:
   description: Yocuda developer documentation
   url: https://developer.ereceipts.co.uk
@@ -80,7 +80,9 @@ paths:
         schema:
           type: array
           items:
-            type: integer
+            oneOf:
+            - type: integer
+            - type: string
           minItems: 1
           maxItems: 5
         required: false
