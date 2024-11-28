@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Yocuda eReceipts API v2
-  version: 2.0.0-beta.7
+  version: 2.0.0-beta.8
 externalDocs:
   description: Yocuda developer documentation
   url: https://developer.ereceipts.co.uk
@@ -649,7 +649,9 @@ components:
         store:
           $ref: '#/components/schemas/ReceiptStore'
         store_reference:
-          type: integer
+          oneOf:
+          - type: integer
+          - type: string
           description: The store identifier
         subtotal:
           type: number
