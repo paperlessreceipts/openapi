@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Yocuda eReceipts API v2
-  version: 2.0.0-beta.11
+  version: 2.0.0-beta.12
 externalDocs:
   description: Yocuda developer documentation
   url: https://developer.ereceipts.co.uk
@@ -902,6 +902,7 @@ components:
           oneOf:
           - $ref: '#/components/schemas/ReceiptCardPaymentDetails'
           - $ref: '#/components/schemas/ReceiptCashPaymentDetails'
+          - $ref: '#/components/schemas/ReceiptChequePaymentDetails'
           - $ref: '#/components/schemas/ReceiptGiftCardPaymentDetails'
           - $ref: '#/components/schemas/ReceiptOtherPaymentDetails'
           - $ref: '#/components/schemas/ReceiptVoucherPaymentDetails'
@@ -911,6 +912,7 @@ components:
           enum:
           - card
           - cash
+          - cheque
           - giftcard
           - other
           - voucher
@@ -972,6 +974,20 @@ components:
           type: number
           format: float
           description: Rounding amount
+    ReceiptChequePaymentDetails:
+      type: object
+      properties:
+        $schema_type:
+          type: string
+          const: cheque
+          description: This schemas's type
+        other:
+          type: object
+          additionalProperties: true
+          description: Retailer-specific payment details
+        po_number:
+          type: string
+          description: Purchase order number
     ReceiptGiftCardPaymentDetails:
       type: object
       properties:
