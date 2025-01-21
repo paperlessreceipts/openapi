@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Yocuda eReceipts API v2
-  version: 2.0.0-beta.10
+  version: 2.0.0-beta.11
 externalDocs:
   description: Yocuda developer documentation
   url: https://developer.ereceipts.co.uk
@@ -331,8 +331,29 @@ paths:
           description: Receipt not found
           $ref: '#/components/responses/NotFoundError'
         '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                generic:
+                  summary: Conflict status
+                  value:
+                    status: conflict
+                    description: '...'
+                receipt_identifier_present:
+                  summary: Receipt identifier already present
+                  value:
+                    status: conflict
+                    description: '...'
+                    code: receipt_identifier_present
+                receipt_processing_pending:
+                  summary: Receipt processing is pending
+                  value:
+                    status: conflict
+                    description: '...'
+                    code: receipt_processing_pending
           description: Receipt could not be updated
-          $ref: '#/components/responses/ConflictError'
         default:
           $ref: '#/components/responses/GenericError'
   /receipts/{id}:
@@ -404,8 +425,29 @@ paths:
           description: Receipt not found
           $ref: '#/components/responses/NotFoundError'
         '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                generic:
+                  summary: Conflict status
+                  value:
+                    status: conflict
+                    description: '...'
+                receipt_identifier_present:
+                  summary: Receipt identifier already present
+                  value:
+                    status: conflict
+                    description: '...'
+                    code: receipt_identifier_present
+                receipt_processing_pending:
+                  summary: Receipt processing is pending
+                  value:
+                    status: conflict
+                    description: '...'
+                    code: receipt_processing_pending
           description: Receipt could not be updated
-          $ref: '#/components/responses/ConflictError'
         default:
           $ref: '#/components/responses/GenericError'
   /pos/receipts:
@@ -1157,19 +1199,6 @@ components:
               value:
                 status: conflict
                 description: '...'
-            receipt_identifier_present:
-              summary: An identifier is already present
-              value:
-                status: conflict
-                description: '...'
-                code: receipt_identifier_present
-            receipt_processing_pending:
-              summary:
-              - Action cannot be performed until receipt processing has completed
-              value:
-                status: conflict
-                description: '...'
-                code: receipt_processing_pending
       description: Requested resource could not be updated
     ForbiddenError:
       content:
@@ -1189,7 +1218,7 @@ components:
                 description: '...'
                 code: signature_expired
             signature_too_far_in_the_future:
-              summary: Signature over the upper limit of expiry
+              summary: Signature too far in the future
               value:
                 status: forbidden
                 description: '...'
