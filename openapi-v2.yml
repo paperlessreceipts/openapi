@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Yocuda eReceipts API v2
-  version: 2.0.0-beta.12
+  version: 2.0.0-beta.13
 externalDocs:
   description: Yocuda developer documentation
   url: https://developer.ereceipts.co.uk
@@ -872,6 +872,13 @@ components:
                 type: string
                 description: URI
           description: Links to receipt attachments
+        pdf:
+          type: object
+          properties:
+            href:
+              type: string
+              description: URI
+          description: Link to the PDF receipt
         webview:
           type: object
           properties:
@@ -880,6 +887,7 @@ components:
               description: URI
             pdf:
               type: string
+              deprecated: true
               description: URI of a PDF rendering of the HTML receipt
             qrcode:
               type: string
