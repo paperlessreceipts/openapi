@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Yocuda eReceipts API v2
-  version: 2.0.0-beta.13
+  version: 2.0.0-beta.14
 externalDocs:
   description: Yocuda developer documentation
   url: https://developer.ereceipts.co.uk
@@ -327,9 +327,24 @@ paths:
           $ref: '#/components/responses/BadRequestError'
         '403':
           $ref: '#/components/responses/ForbiddenError'
-        '404':
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                generic:
+                  summary: Unprocessable Entity status
+                  value:
+                    status: unprocessable entity
+                    description: '...'
+                receipt_not_found:
+                  summary: Receipt not found
+                  value:
+                    status: unprocessable entity
+                    description: '...'
+                    code: receipt_not_found
           description: Receipt not found
-          $ref: '#/components/responses/NotFoundError'
         '409':
           content:
             application/json:
@@ -389,8 +404,23 @@ paths:
         '403':
           $ref: '#/components/responses/ForbiddenError'
         '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                generic:
+                  summary: Not Found status
+                  value:
+                    status: not found
+                    description: '...'
+                receipt_not_found:
+                  summary: Receipt not found
+                  value:
+                    status: not found
+                    description: '...'
+                    code: receipt_not_found
           description: Receipt not found
-          $ref: '#/components/responses/NotFoundError'
         default:
           $ref: '#/components/responses/GenericError'
     patch:
@@ -422,8 +452,23 @@ paths:
         '403':
           $ref: '#/components/responses/ForbiddenError'
         '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                generic:
+                  summary: Not Found status
+                  value:
+                    status: not found
+                    description: '...'
+                receipt_not_found:
+                  summary: Receipt not found
+                  value:
+                    status: not found
+                    description: '...'
+                    code: receipt_not_found
           description: Receipt not found
-          $ref: '#/components/responses/NotFoundError'
         '409':
           content:
             application/json:
@@ -575,6 +620,7 @@ components:
           type: string
           enum:
           - receipt_identifier_present
+          - receipt_not_found
           - receipt_processing_pending
           - signature_expired
           - signature_too_far_in_the_future
