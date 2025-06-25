@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Yocuda eReceipts API v2
-  version: 2.0.0-beta.15
+  version: 2.0.0-beta.16
 externalDocs:
   description: Yocuda developer documentation
   url: https://developer.ereceipts.co.uk
@@ -1014,8 +1014,6 @@ components:
           description: The card type
     ReceiptCashPaymentDetails:
       type: object
-      required:
-      - change
       properties:
         $schema_type:
           type: string
