@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Yocuda eReceipts API v2
-  version: 2.0.0-beta.16
+  version: 2.0.0-beta.17
 externalDocs:
   description: Yocuda developer documentation
   url: https://developer.ereceipts.co.uk
@@ -804,6 +804,9 @@ components:
           type: number
           format: float
           description: The amount of discount for this discount line
+        code:
+          type: string
+          description: The discount code
         name:
           type: string
           description: The descriptive name of this discount
