@@ -1,12 +1,14 @@
 openapi: 3.1.0
 info:
   title: Yocuda eReceipts API v2
-  version: 2.0.0-beta.17
+  version: 2.0.0-beta.18
 externalDocs:
   description: Yocuda developer documentation
   url: https://developer.ereceipts.co.uk
 servers:
+- url: https://api.yocuda.com/
 - url: https://api.ereceipts.co.uk/
+  description: This URL is deprecated. Please use https://api.yocuda.com/ instead.
 - url: https://api.staging.ereceipts.co.uk/
 paths:
   /receipts:
