@@ -1,10 +1,10 @@
 openapi: 3.1.0
 info:
   title: Yocuda eReceipts API v2
-  version: 2.0.0-beta.18
+  version: 2.0.0-beta.19
 externalDocs:
   description: Yocuda developer documentation
-  url: https://developer.ereceipts.co.uk
+  url: https://developer.yocuda.com
 servers:
 - url: https://api.yocuda.com/
 - url: https://api.ereceipts.co.uk/
@@ -15,7 +15,7 @@ paths:
     get:
       summary: Get a list of receipts
       externalDocs:
-        url: https://developer.ereceipts.co.uk/api/resources/get_receipts_v2.html#get-receipts-v2
+        url: https://developer.yocuda.com/api/resources/get_receipts_v2.html#get-receipts-v2
       parameters:
       - $ref: '#/components/parameters/apiVersion'
       - name: consumer
@@ -152,7 +152,7 @@ paths:
     post:
       summary: Post a single receipt
       externalDocs:
-        url: https://developer.ereceipts.co.uk/api/resources/post_receipts.html#post-receipts
+        url: https://developer.yocuda.com/api/resources/post_receipts.html#post-receipts
       requestBody:
         content:
           application/json:
@@ -283,7 +283,7 @@ paths:
     post:
       summary: Assign a single receipt to an identifier
       externalDocs:
-        url: https://developer.ereceipts.co.uk/api/resources/post_assign_receipt.html#post-assign-receipt
+        url: https://developer.yocuda.com/api/resources/post_assign_receipt.html#post-assign-receipt
       parameters:
       - $ref: '#/components/parameters/apiVersion'
       - name: consumer
@@ -377,7 +377,7 @@ paths:
     get:
       summary: Get a single receipt
       externalDocs:
-        url: https://developer.ereceipts.co.uk/api/resources/get_receipts_id.html#get-receipts-id
+        url: https://developer.yocuda.com/api/resources/get_receipts_id.html#get-receipts-id
       parameters:
       - $ref: '#/components/parameters/apiVersion'
       - name: id
@@ -428,7 +428,7 @@ paths:
     patch:
       summary: Update a single receipt using a JSON Patch document
       externalDocs:
-        url: https://developer.ereceipts.co.uk/api/resources/patch_receipts_id.html#patch-receipts-id
+        url: https://developer.yocuda.com/api/resources/patch_receipts_id.html#patch-receipts-id
       parameters:
       - $ref: '#/components/parameters/apiVersion'
       - name: id
@@ -501,7 +501,7 @@ paths:
     post:
       summary: Post a raw receipt in any format
       externalDocs:
-        url: https://developer.ereceipts.co.uk/api/resources/post_pos_receipts.html#post-pos-receipts
+        url: https://developer.yocuda.com/api/resources/post_pos_receipts.html#post-pos-receipts
       parameters:
       - $ref: '#/components/parameters/apiVersion'
       - name: ereceipts-attachment-id
