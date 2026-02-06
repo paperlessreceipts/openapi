@@ -9,5 +9,5 @@ A human readable changelog is maintained in [releases][2].
 Please note that the specification is a work in progress and not all resources
 described in the [developer documentation][1] are included.
 
-[1]: https://developer.ereceipts.co.uk/
+[1]: https://developer.yocuda.com/
 [2]: https://github.com/paperlessreceipts/openapi/releases
